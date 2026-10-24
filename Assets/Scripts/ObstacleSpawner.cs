@@ -11,7 +11,7 @@ public class ObstacleSpawner : MonoBehaviour
 
     void Update()
     {
-        timer += Time.deltaTime;
+        timer += Time.deltaTime  * GlobalVars.speedMult;
 
         if (timer >= spawnInterval)
         {

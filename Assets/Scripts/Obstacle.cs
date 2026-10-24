@@ -10,7 +10,7 @@ public class Obstacle : MonoBehaviour
 
     void Update()
     {
-        transform.Translate(Vector3.down * speed * Time.deltaTime, Space.World);
+        transform.Translate(Vector3.down * speed * Time.deltaTime * GlobalVars.speedMult, Space.World);
 
         if (transform.position.y < destroyY)
         {

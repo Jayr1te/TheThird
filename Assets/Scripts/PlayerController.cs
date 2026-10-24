@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -27,6 +28,10 @@ public class PlayerController : MonoBehaviour
         currentLane = laneCount / 2;
         targetX = LaneToX(currentLane);
         transform.position = new Vector3(targetX, transform.position.y, transform.position.z);
+        GlobalVars.speedMult = 1f;
+        GlobalVars.distance = 0f;
+        GlobalVars.fireDistance = -15f;
+        GlobalVars.fireSpeed = 0.5f;
     }
 
     void Update()
@@ -38,6 +43,17 @@ public class PlayerController : MonoBehaviour
         // Smoothly slide toward the target lane
         float newX = Mathf.MoveTowards(transform.position.x, targetX, laneSwitchSpeed * Time.deltaTime);
         transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+
+        GlobalVars.distance += GlobalVars.speedMult * Time.deltaTime;
+        GlobalVars.fireDistance += GlobalVars.fireSpeed * Time.deltaTime;
+        GlobalVars.speedMult += 0.1f * Time.deltaTime;
+        GlobalVars.fireSpeed += 0.025f * Time.deltaTime;
+
+        if (GlobalVars.distance <= GlobalVars.fireDistance)
+        {
+            Invoke(nameof(RestartLevel), 0.0f);
+        }
+
     }
 
     void HandleInput()
@@ -100,16 +116,21 @@ public class PlayerController : MonoBehaviour
         if (obstacle == null) return;
 
         // Safe only if we're in the air AND the obstacle is low enough to jump over
-        if (isJumping && obstacle.canBeJumped) return;
+        if (isJumping && obstacle.canBeJumped)
+        {
+            GlobalVars.speedMult += 0.1f;
+            return;
+        };
 
         Die();
     }
 
     void Die()
     {
-        isDead = true;
+        //isDead = true;
         Debug.Log("Player hit an obstacle! Restarting...");
-        Invoke(nameof(RestartLevel), 0.5f);
+        //Invoke(nameof(RestartLevel), 0.5f);
+        GlobalVars.speedMult = 0.5f;
     }
 
     void RestartLevel()
