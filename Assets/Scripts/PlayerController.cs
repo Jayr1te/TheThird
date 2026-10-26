@@ -21,6 +21,9 @@ public class PlayerController : MonoBehaviour
     [Header("Spawning")]
     public ObstacleSpawner obstacleSpawner;
 
+    [Header("Movement Speed")]
+    public float baseMovementSpeed = 6f;
+
     private int currentLane;
     private float targetX;
 
@@ -72,7 +75,9 @@ public class PlayerController : MonoBehaviour
 
         // Update game speed and distances
         GlobalVars.distance +=
-            GlobalVars.speedMult * Time.deltaTime;
+            baseMovementSpeed *
+            GlobalVars.speedMult *
+            Time.deltaTime;
 
         GlobalVars.fireDistance +=
             GlobalVars.fireSpeed * Time.deltaTime;
@@ -197,21 +202,24 @@ public class PlayerController : MonoBehaviour
 
         Obstacle obstacle = other.GetComponent<Obstacle>();
         if (obstacle == null) return;
+        bool successfullyAvoided =
+            (isJumping && obstacle.canBeJumped) ||
+            (isSliding && obstacle.canBeSlid);
 
-        // Jumpable obstacles are safe while jumping
-        if (isJumping && obstacle.canBeJumped)
+        if (successfullyAvoided)
         {
-            // GlobalVars.speedMult += 0.1f;
-            // Changed speedMult to scale slower, adding 0.1 made the game super hard very quickly
-            GlobalVars.speedMult *= 1.015f;
-            obstacleSpawner.spawnInterval *= 1.015f;
-            return;
-        }
+            if (!obstacle.hasAwardedBonus)
+            {
+                obstacle.hasAwardedBonus = true;
 
-        if (isSliding && obstacle.canBeSlid)
-        {
-            GlobalVars.speedMult *= 1.015f;
-            obstacleSpawner.spawnInterval *= 1.015f;
+                GlobalVars.speedMult *= 1.1f;
+
+                if (obstacleSpawner != null)
+                {
+                    obstacleSpawner.spawnInterval *= 1.1f;
+                }
+            }
+
             return;
         }
 
