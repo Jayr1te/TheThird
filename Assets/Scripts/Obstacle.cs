@@ -6,6 +6,7 @@ public class Obstacle : MonoBehaviour
     public bool canBeJumped = true;
     public bool canBeSlid = true;
     public bool hasAwardedBonus = false;
+    public bool hasAppliedPenalty = false;
 
     public float speed = 6f;      // how fast it moves down the screen
     public float destroyY = -7f;  // when it goes below this Y, it gets deleted

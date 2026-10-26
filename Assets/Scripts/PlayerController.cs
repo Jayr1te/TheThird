@@ -23,6 +23,15 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movement Speed")]
     public float baseMovementSpeed = 6f;
+    public float startingPlayerSpeed = 1f;
+    public float startingFireSpeed = 0.75f;
+
+    public float obstacleSpeedBonus = 1.1f;
+    public float collisionSpeedMultiplier = 0.5f;
+
+    public float minimumPlayerSpeed = 0.25f;
+    public float maximumPlayerSpeed = 3f;
+
 
     private int currentLane;
     private float targetX;
@@ -47,10 +56,10 @@ public class PlayerController : MonoBehaviour
             transform.position.z
         );
 
-        GlobalVars.speedMult = 1f;
+        GlobalVars.speedMult = startingPlayerSpeed;
         GlobalVars.distance = 0f;
         GlobalVars.fireDistance = -15f;
-        GlobalVars.fireSpeed = 0.5f;
+        GlobalVars.fireSpeed = startingFireSpeed;
     }
 
     void Update()
@@ -79,8 +88,11 @@ public class PlayerController : MonoBehaviour
             GlobalVars.speedMult *
             Time.deltaTime;
 
+        // Fire progress
         GlobalVars.fireDistance +=
-            GlobalVars.fireSpeed * Time.deltaTime;
+            baseMovementSpeed *
+            GlobalVars.fireSpeed *
+            Time.deltaTime;
 
         GlobalVars.speedMult += 0.1f * Time.deltaTime;
         GlobalVars.fireSpeed += 0.025f * Time.deltaTime;
@@ -212,15 +224,25 @@ public class PlayerController : MonoBehaviour
             {
                 obstacle.hasAwardedBonus = true;
 
-                GlobalVars.speedMult *= 1.1f;
+                 GlobalVars.speedMult = Mathf.Min(
+                    GlobalVars.speedMult * obstacleSpeedBonus,
+                    maximumPlayerSpeed
+                );
 
-                if (obstacleSpawner != null)
-                {
-                    obstacleSpawner.spawnInterval *= 1.1f;
-                }
             }
 
             return;
+        }
+
+         // Player hit an obstacle
+        if (!obstacle.hasAppliedPenalty)
+        {
+            obstacle.hasAppliedPenalty = true;
+
+            GlobalVars.speedMult = Mathf.Max(
+                GlobalVars.speedMult * collisionSpeedMultiplier,
+                minimumPlayerSpeed
+            );
         }
 
         Die();
