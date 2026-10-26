@@ -1,23 +1,33 @@
+
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
     [Header("Lanes")]
-    public float laneWidth = 2f;        // distance between lane centers
-    public int laneCount = 3;           // total number of lanes
-    public float laneSwitchSpeed = 15f; // how fast the player slides between lanes
+    public float laneWidth = 2f;
+    public int laneCount = 3;
+    public float laneSwitchSpeed = 15f;
 
     [Header("Jump")]
-    public float jumpDuration = 0.6f;   // seconds in the air
-    public float jumpScale = 1.5f;      // how big the player gets at the peak (fake height)
+    public float jumpDuration = 0.6f;
+    public float jumpScale = 1.5f;
+
+    [Header("Slide")]
+    public float slideDuration = 0.6f;
+    public float slideScale = 0.75f;
+
+    [Header("Spawning")]
+    public ObstacleSpawner obstacleSpawner;
 
     private int currentLane;
     private float targetX;
+
     private bool isJumping;
+    private bool isSliding;
     private bool isDead;
+
     private Vector3 baseScale;
 
     void Start()
@@ -27,7 +37,13 @@ public class PlayerController : MonoBehaviour
         // Start in the middle lane
         currentLane = laneCount / 2;
         targetX = LaneToX(currentLane);
-        transform.position = new Vector3(targetX, transform.position.y, transform.position.z);
+
+        transform.position = new Vector3(
+            targetX,
+            transform.position.y,
+            transform.position.z
+        );
+
         GlobalVars.speedMult = 1f;
         GlobalVars.distance = 0f;
         GlobalVars.fireDistance = -15f;
@@ -38,58 +54,95 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead) return;
 
+        // Check keyboard input every frame
         HandleInput();
 
-        // Smoothly slide toward the target lane
-        float newX = Mathf.MoveTowards(transform.position.x, targetX, laneSwitchSpeed * Time.deltaTime);
-        transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+        // Smoothly move toward the target lane
+        float newX = Mathf.MoveTowards(
+            transform.position.x,
+            targetX,
+            laneSwitchSpeed * Time.deltaTime
+        );
 
-        GlobalVars.distance += GlobalVars.speedMult * Time.deltaTime;
-        GlobalVars.fireDistance += GlobalVars.fireSpeed * Time.deltaTime;
+        transform.position = new Vector3(
+            newX,
+            transform.position.y,
+            transform.position.z
+        );
+
+        // Update game speed and distances
+        GlobalVars.distance +=
+            GlobalVars.speedMult * Time.deltaTime;
+
+        GlobalVars.fireDistance +=
+            GlobalVars.fireSpeed * Time.deltaTime;
+
         GlobalVars.speedMult += 0.1f * Time.deltaTime;
         GlobalVars.fireSpeed += 0.025f * Time.deltaTime;
 
+        // Restart when fire catches the player
         if (GlobalVars.distance <= GlobalVars.fireDistance)
         {
-            Invoke(nameof(RestartLevel), 0.0f);
+            RestartLevel();
         }
-
     }
 
     void HandleInput()
     {
         // Move left
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(KeyCode.A) ||
+            Input.GetKeyDown(KeyCode.LeftArrow))
         {
             ChangeLane(-1);
         }
 
         // Move right
-        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+        if (Input.GetKeyDown(KeyCode.D) ||
+            Input.GetKeyDown(KeyCode.RightArrow))
         {
             ChangeLane(1);
         }
 
-        // Jump (can't jump while already in the air)
-        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && !isJumping)
+        // Jump
+        if (Input.GetKeyDown(KeyCode.Space) ||
+            Input.GetKeyDown(KeyCode.W) ||
+            Input.GetKeyDown(KeyCode.UpArrow))
         {
-            StartCoroutine(Jump());
+            if (!isJumping && !isSliding)
+            {
+                StartCoroutine(Jump());
+            }
+        }
+
+        // Slide
+        if (Input.GetKeyDown(KeyCode.S) ||
+            Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            if (!isJumping && !isSliding)
+            {
+                StartCoroutine(Slide());
+            }
         }
     }
 
     void ChangeLane(int direction)
     {
-        currentLane = Mathf.Clamp(currentLane + direction, 0, laneCount - 1);
+        currentLane = Mathf.Clamp(
+            currentLane + direction,
+            0,
+            laneCount - 1
+        );
+
         targetX = LaneToX(currentLane);
     }
 
-    // Converts a lane index (0, 1, 2...) into a world X position centered on x = 0
+    // Convert lane index to world X position
     float LaneToX(int lane)
     {
         return (lane - (laneCount - 1) / 2f) * laneWidth;
     }
 
-    // In a top-down view, "height" is faked by scaling the sprite up and back down
+    // Fake jump height by scaling the sprite
     IEnumerator Jump()
     {
         isJumping = true;
@@ -98,8 +151,14 @@ public class PlayerController : MonoBehaviour
         while (timer < jumpDuration)
         {
             timer += Time.deltaTime;
-            float arc = Mathf.Sin(timer / jumpDuration * Mathf.PI); // 0 -> 1 -> 0
-            transform.localScale = baseScale * Mathf.Lerp(1f, jumpScale, arc);
+
+            float arc = Mathf.Sin(
+                Mathf.Clamp01(timer / jumpDuration) * Mathf.PI
+            );
+
+            transform.localScale = baseScale *
+                Mathf.Lerp(1f, jumpScale, arc);
+
             yield return null;
         }
 
@@ -107,7 +166,31 @@ public class PlayerController : MonoBehaviour
         isJumping = false;
     }
 
-    // Runs every physics step while overlapping a trigger collider
+    // Fake sliding by shrinking the sprite
+    IEnumerator Slide()
+    {
+        isSliding = true;
+        float timer = 0f;
+
+        while (timer < slideDuration)
+        {
+            timer += Time.deltaTime;
+
+            float arc = Mathf.Sin(
+                Mathf.Clamp01(timer / slideDuration) * Mathf.PI
+            );
+
+            transform.localScale = baseScale *
+                Mathf.Lerp(1f, slideScale, arc);
+
+            yield return null;
+        }
+
+        transform.localScale = baseScale;
+        isSliding = false;
+    }
+
+    // Detect obstacle collisions
     void OnTriggerStay2D(Collider2D other)
     {
         if (isDead) return;
@@ -115,26 +198,41 @@ public class PlayerController : MonoBehaviour
         Obstacle obstacle = other.GetComponent<Obstacle>();
         if (obstacle == null) return;
 
-        // Safe only if we're in the air AND the obstacle is low enough to jump over
+        // Jumpable obstacles are safe while jumping
         if (isJumping && obstacle.canBeJumped)
         {
-            GlobalVars.speedMult += 0.1f;
+            // GlobalVars.speedMult += 0.1f;
+            // Changed speedMult to scale slower, adding 0.1 made the game super hard very quickly
+            GlobalVars.speedMult *= 1.015f;
+            obstacleSpawner.spawnInterval *= 1.015f;
             return;
-        };
+        }
+
+        if (isSliding && obstacle.canBeSlid)
+        {
+            GlobalVars.speedMult *= 1.015f;
+            obstacleSpawner.spawnInterval *= 1.015f;
+            return;
+        }
 
         Die();
     }
 
     void Die()
     {
-        //isDead = true;
+        // isDead = true;
+
         Debug.Log("Player hit an obstacle! Restarting...");
-        //Invoke(nameof(RestartLevel), 0.5f);
+
+        // Invoke(nameof(RestartLevel), 0.5f);
+
         GlobalVars.speedMult = 0.5f;
     }
 
     void RestartLevel()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(
+            SceneManager.GetActiveScene().buildIndex
+        );
     }
 }
