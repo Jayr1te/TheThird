@@ -627,6 +627,10 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 6154753319658324040
+      type: {class: 'Provider2DCache`1[[UnityEngine.Rendering.Universal.Light2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]', ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data:
+        m_Cache: []
     - rid: 6816733941827371080
       type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
@@ -634,7 +638,7 @@ MonoBehaviour:
         m_SelectedSource:
           rid: -2
         m_Provider2DCache:
-          rid: -2
+          rid: 6154753319658324040
 --- !u!4 &619394802
 Transform:
   m_ObjectHideFlags: 0
@@ -687,6 +691,9 @@ MonoBehaviour:
   laneSwitchSpeed: 15
   jumpDuration: 0.6
   jumpScale: 1.5
+  slideDuration: 0.6
+  slideScale: 0.75
+  obstacleSpawner: {fileID: 1752932690}
 --- !u!61 &921454415
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1277,12 +1284,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d559517e2f3c7f40988ac9c0038e7dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleSpawner
+  obstacles:
+  - prefab: {fileID: 4513689455845407354, guid: 1cb88349c362ab64981ab83e65ba38b7, type: 3}
+    weight: 40
+    canBeJumped: 0
+    canBeSlid: 0
+  - prefab: {fileID: 3431532130684058314, guid: 66d3abf63c71dc84ca85a1349e3cc133, type: 3}
+    weight: 20
+    canBeJumped: 0
+    canBeSlid: 0
+  - prefab: {fileID: 3431532130684058314, guid: d5b63ddb85515f443a81febe9d32612a, type: 3}
+    weight: 40
+    canBeJumped: 0
+    canBeSlid: 0
   obstaclePrefabs:
   - {fileID: 4513689455845407354, guid: 1cb88349c362ab64981ab83e65ba38b7, type: 3}
   - {fileID: 3431532130684058314, guid: 66d3abf63c71dc84ca85a1349e3cc133, type: 3}
+  - {fileID: 3431532130684058314, guid: d5b63ddb85515f443a81febe9d32612a, type: 3}
   laneWidth: 2
   laneCount: 3
   spawnInterval: 1.2
+  singleWeight: 75
+  doubleWeight: 20
+  tripleWeight: 5
 --- !u!4 &1752932691
 Transform:
   m_ObjectHideFlags: 0
@@ -1554,6 +1578,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI
   distanceText: {fileID: 1462672926}
+  fireDistanceText: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

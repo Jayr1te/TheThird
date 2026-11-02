@@ -181,5 +181,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Obstacle
   canBeJumped: 0
+  canBeSlid: 0
   speed: 6
   destroyY: -7
