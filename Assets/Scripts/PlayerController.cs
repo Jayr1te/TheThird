@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviour
         // Restart when fire catches the player
         if (GlobalVars.distance <= GlobalVars.fireDistance)
         {
-            RestartLevel();
+            GameOver();
         }
     }
 
@@ -264,5 +264,10 @@ public class PlayerController : MonoBehaviour
         SceneManager.LoadScene(
             SceneManager.GetActiveScene().buildIndex
         );
+    }
+
+    void GameOver()
+    {
+        SceneManager.LoadScene("Game Over");
     }
 }

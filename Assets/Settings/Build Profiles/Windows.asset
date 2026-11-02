@@ -20,8 +20,20 @@ MonoBehaviour:
     rid: 7457743762102419537
   m_ActivePlatformGuid: 
   m_AdditionalPlatformBuildSettings: []
-  m_OverrideGlobalSceneList: 0
-  m_Scenes: []
+  m_OverrideGlobalSceneList: 1
+  m_Scenes:
+  - m_enabled: 1
+    m_path: Assets/Scenes/Main Menu.unity
+    m_guid: 8c9cfa26abfee488c85f1582747f6a02
+  - m_enabled: 1
+    m_path: Assets/Scenes/Game.unity
+    m_guid: e5f1271fbad3bda49a2b8e91cf9fd666
+  - m_enabled: 1
+    m_path: Assets/Scenes/Game Over.unity
+    m_guid: 00346d3ac776d894ea1887ef686b5f27
+  - m_enabled: 1
+    m_path: Assets/Scenes/Credits.unity
+    m_guid: 4aaf1049a898e72488b416f945c20a96
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:

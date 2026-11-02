@@ -694,6 +694,13 @@ MonoBehaviour:
   slideDuration: 0.6
   slideScale: 0.75
   obstacleSpawner: {fileID: 1752932690}
+  baseMovementSpeed: 6
+  startingPlayerSpeed: 1
+  startingFireSpeed: 0.75
+  obstacleSpeedBonus: 1.1
+  collisionSpeedMultiplier: 0.5
+  minimumPlayerSpeed: 0.25
+  maximumPlayerSpeed: 3
 --- !u!61 &921454415
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1287,7 +1294,7 @@ MonoBehaviour:
   obstacles:
   - prefab: {fileID: 4513689455845407354, guid: 1cb88349c362ab64981ab83e65ba38b7, type: 3}
     weight: 40
-    canBeJumped: 0
+    canBeJumped: 1
     canBeSlid: 0
   - prefab: {fileID: 3431532130684058314, guid: 66d3abf63c71dc84ca85a1349e3cc133, type: 3}
     weight: 20
@@ -1296,14 +1303,18 @@ MonoBehaviour:
   - prefab: {fileID: 3431532130684058314, guid: d5b63ddb85515f443a81febe9d32612a, type: 3}
     weight: 40
     canBeJumped: 0
-    canBeSlid: 0
-  obstaclePrefabs:
-  - {fileID: 4513689455845407354, guid: 1cb88349c362ab64981ab83e65ba38b7, type: 3}
-  - {fileID: 3431532130684058314, guid: 66d3abf63c71dc84ca85a1349e3cc133, type: 3}
-  - {fileID: 3431532130684058314, guid: d5b63ddb85515f443a81febe9d32612a, type: 3}
+    canBeSlid: 1
   laneWidth: 2
   laneCount: 3
   spawnInterval: 1.2
+  lookaheadDistance: 70
+  physicalSpawnDistance: 35
+  cleanupDistance: 5
+  player: {fileID: 921454418}
+  laneWarnings: []
+  gameCamera: {fileID: 519420031}
+  minimumRowSpacing: 12
+  minimumTimeBetweenRows: 1.5
   singleWeight: 75
   doubleWeight: 20
   tripleWeight: 5
@@ -1578,7 +1589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI
   distanceText: {fileID: 1462672926}
-  fireDistanceText: {fileID: 0}
+  fireDistanceText: {fileID: 1790578988}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
